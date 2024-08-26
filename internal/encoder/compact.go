@@ -3,8 +3,6 @@ package encoder
 import (
 	"bytes"
 	"fmt"
-	"strconv"
-	"unsafe"
 
 	"github.com/goccy/go-json/internal/errors"
 )
@@ -242,9 +240,9 @@ func compactNumber(dst, src []byte, cursor int64) ([]byte, int64, error) {
 		break
 	}
 	num := src[start:cursor]
-	if _, err := strconv.ParseFloat(*(*string)(unsafe.Pointer(&num)), 64); err != nil {
+	/*if _, err := strconv.ParseFloat(*(*string)(unsafe.Pointer(&num)), 64); err != nil {
 		return nil, 0, err
-	}
+	}*/
 	dst = append(dst, num...)
 	return dst, cursor, nil
 }

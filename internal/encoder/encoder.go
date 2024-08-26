@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 	"unsafe"
 
 	"github.com/goccy/go-json/internal/errors"
@@ -422,6 +423,8 @@ func AppendMarshalJSON(ctx *RuntimeContext, code *Opcode, b []byte, v interface{
 			return nil, &errors.MarshalerError{Type: reflect.TypeOf(v), Err: err}
 		}
 		bb = b
+	} else if isTime(v){
+		bb = []byte(fmt.Sprintf(`"%s"`,fmtTime(v.(time.Time))))
 	} else {
 		marshaler, ok := v.(json.Marshaler)
 		if !ok {
@@ -466,7 +469,9 @@ func AppendMarshalJSONIndent(ctx *RuntimeContext, code *Opcode, b []byte, v inte
 			return nil, &errors.MarshalerError{Type: reflect.TypeOf(v), Err: err}
 		}
 		bb = b
-	} else {
+	} else if isTime(v){
+		bb = []byte(fmt.Sprintf(`"%s"`,fmtTime(v.(time.Time))))
+	}else {
 		marshaler, ok := v.(json.Marshaler)
 		if !ok {
 			return AppendNull(ctx, b), nil
@@ -593,4 +598,13 @@ func IsNilForMarshaler(v interface{}) bool {
 		return rv.Len() == 0
 	}
 	return false
+}
+
+func isTime(obj interface{}) bool {
+	_, ok := obj.(time.Time)
+	return ok
+}
+
+func fmtTime(tm time.Time) string {
+	return tm.Local().Format("2006-01-02 15:04:05")
 }
